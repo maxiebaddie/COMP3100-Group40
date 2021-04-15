@@ -14,7 +14,7 @@ public class Client {
 	    private static final String xmlPath = "ds-system.xml";
 	    private static final String REDY = "REDY";
 	    private static final String OK = "OK";
-	    private static final String SCHD = "SCHD ";                                        
+	    private static final String SCHD = "SCHD ";                                        //Initialise all variable commands into 2 chars 
 	    private static final String sOK = "OK";
 	    private static final String JOBN = "JO";
 	    private static final String DATA = "DA";
@@ -30,17 +30,17 @@ public class Client {
 
 	    public Client (String address, int port) {                                                                         
 	        try {
-	            s = new Socket (address, port);                                         
-	            in = new DataInputStream(s.getInputStream());                            
+	            s = new Socket (address, port);                                         // Initialises the socket object with inputs
+	            in = new DataInputStream(s.getInputStream());                            // Initialises data stream objects
 	            out = new DataOutputStream(s.getOutputStream());
-	            bytes = new byte[1024];                                                 
+	            bytes = new byte[1024];                                                 // Initialises byte array for transmitting messages
 	        } catch (IOException i) {
 	            System.out.println(i);
 	        }
 	    }
 
-	    private void sendMsg (String msg) {                                            
-	        try {                                                                      
+	    private void sendMsg (String msg) {                                            // Communicate with the server by making conversions between string
+	        try {                                                                      // objects and byte arrays
 	            byte[] bytes = msg.getBytes();
 	            out.write(bytes);
 	        } catch (IOException i) {
@@ -48,7 +48,7 @@ public class Client {
 	        }
 	    }
 
-	    private String getMsg() {                                                      
+	    private String getMsg() {                                                      // Gets the messages from the server in bytes and converts to strings.
 	        try {
 	            in.read(bytes);
 	            String msg = new String(bytes);
@@ -82,7 +82,7 @@ public class Client {
 	            System.out.println(i);
 	        }
 	    }
-	    private void exit() {                                                                    
+	    private void exit() {                                                                    //Ends simulation when an error is recieved or quit message from server
 	        try {
 	            in.close();
 	            out.close();
@@ -93,7 +93,29 @@ public class Client {
 	    }
 	    
 	    public static void main(String[] args) {
-	       
+	        Client c = new Client("localhost", 50000);
+	        c.sendMsg(HELO);
+	        c.getMsg();
+	        c.sendMsg(AUTH);
+	        c.readSysInfo(); 
+	        while(true) {
+	        	RCVD = c.getMsg();
+	        	CMD = RCVD.substring(0,2);                                    //Substrings the incoming messages so it can decipher what scheduling or return message is required
+	        	if(CMD.equals(sOK)) c.sendMsg(REDY);                          // It looks at the first 2 characters
+	        	else if (CMD.equals(NONE)) c.sendMsg(QUIT);
+	        	else if (CMD.equals(sQUIT)) {
+	        		c.exit();
+	        		break;
+	        		}
+	        	else if (CMD.equals(DATA)) c.sendMsg(OK);                     // Follows the ds-client documentation required responses
+	        	else if (CMD.equals(JCPL)) c.sendMsg(REDY);               
+	        	else if (CMD.equals(ERR)) c.sendMsg(QUIT);
+	        	else if (CMD.equals(JOBN)) {
+	        	 c.sendMsg(SCHD + jobID + SERVER);                           // If jobn is sent the client will schedule with the jobid and server info
+	        	 jobID++;
+	        	 }
+	        	
+	        }
 	       
 	    }
 }
