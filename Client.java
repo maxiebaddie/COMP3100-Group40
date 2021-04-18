@@ -8,6 +8,7 @@ public class Client {
 	    private DataInputStream in;
 	    private DataOutputStream out;
 	    byte[] bytes;
+	    private static final Boolean server_newline = true;
 
 	    private static final String HELO = "HELO";
 	    private static final String AUTH = "AUTH " + System.getProperty("user.name");
@@ -41,7 +42,8 @@ public class Client {
 
 	    private void sendMsg (String msg) {                                            // Communicate with the server by making conversions between string
 	        try {                                                                      // objects and byte arrays
-	            byte[] bytes = msg.getBytes();
+	            if (server_newline) { msg = msg + "\n"; }
+	            byte[] bytes = (msg).getBytes();
 	            out.write(bytes);
 	        } catch (IOException i) {
 	            System.out.println(i);
@@ -52,7 +54,7 @@ public class Client {
 	        try {
 	            in.read(bytes);
 	            String msg = new String(bytes);
-	            return msg;
+	            return msg.trim();
 	        } catch (IOException i) {
 	            System.out.println(i);
 	            return null;
