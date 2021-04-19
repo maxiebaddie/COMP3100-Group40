@@ -8,7 +8,7 @@ public class Client {
 	    private DataInputStream in;
 	    private DataOutputStream out;
 	    byte[] bytes;
-	    private static final Boolean server_newline = true;
+	    private static final Boolean server_newline = false;
 
 	    private static final String HELO = "HELO";
 	    private static final String AUTH = "AUTH " + System.getProperty("user.name");
